@@ -2,6 +2,7 @@ from fastapi import APIRouter, UploadFile, File
 from pathlib import Path
 import uuid
 import aiofiles
+import os
 from services.audio_processing.service import process_audio 
 
 router = APIRouter()
@@ -16,7 +17,7 @@ async def upload_audio(file: UploadFile = File(...)):
     unique_id = str(uuid.uuid4())
     filename = f"{unique_id}{file_extension}"
     file_path = ORIGINAL_DIR / filename
-
+    file_base_url =  os.getenv("FILE_BASE_URL", "http://api.revoice.kotoz.tech") # Укажите вашу модель
     async with aiofiles.open(file_path, "wb") as f:
         while chunk := await file.read(1024 * 1024):
             await f.write(chunk)
@@ -27,8 +28,8 @@ async def upload_audio(file: UploadFile = File(...)):
         "status": "success",
         "uuid": unique_id,
         "urls": {
-            "original": f"/original/{filename}",
-            "edit": f"/edit/{results['edit_url']}",
+            "original": f"{file_base_url}/original/{filename}",
+            "edit": f"{file_base_url}/edit/{results['edit_url']}",
         },
         "transcriptions": {
             "orig": results["original_text"],

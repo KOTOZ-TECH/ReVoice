@@ -3,9 +3,14 @@ import json
 import os
 
 def process_to_llm(raw_text: str, words_data: list, system_prompt: str):
+    """
+    Обработка данных через Ollama API с гарантированным JSON-ответом.
+    """
+    # Подгружаем настройки из окружения
     base_url = os.getenv("LLM_BASE_URL", "http://127.0.0.1:11434")
-    model_name = os.getenv("LLM_MODEL", "") 
+    model_name = os.getenv("LLM_MODEL", "") # Укажите вашу модель
 
+    # Формируем запрос
     payload = {
         "model": model_name,
         "messages": [
@@ -18,7 +23,7 @@ def process_to_llm(raw_text: str, words_data: list, system_prompt: str):
                 "content": f"Raw Text: {raw_text}\nData: {json.dumps(words_data, ensure_ascii=False)}",
             },
         ],
-        "format": "json",  
+        "format": "json",  # Заставляем Ollama возвращать валидный JSON
         "stream": False,
         "options": {
             "num_ctx": 6000,
@@ -34,7 +39,9 @@ def process_to_llm(raw_text: str, words_data: list, system_prompt: str):
         )
         response.raise_for_status()
         
+        # Извлекаем контент
         result = response.json()
+        print(result)
         content = result.get("message", {}).get("content", "")
 
         return json.loads(content)

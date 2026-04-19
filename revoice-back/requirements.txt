@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+aiofiles
+python-dotenv
+requests
+faster-whisper
+ffmpeg-python
+python-multipart
